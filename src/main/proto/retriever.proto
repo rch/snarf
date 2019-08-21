@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package ws.grpc.api;
+
+option java_multiple_files = true;
+option java_package = "ws.grpc.api";
+
+
+service RetrieverService {
+    rpc  Fetch (RemoteList) returns (LocalList) {}
+}
+
+message RemoteList {
+    string status = 1;
+    repeated string items = 2;
+}
+
+message LocalList {
+    string status = 1;
+    repeated string items = 2;
+}
+
+message Status {
+    string text = 1;
+}
