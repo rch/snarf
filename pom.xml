@@ -148,7 +148,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/target/generated-sources</source>
+                                <source>${basedir}/target/generated-sources/akka-grpc-java</source>
                             </sources>
                         </configuration>
                     </execution>

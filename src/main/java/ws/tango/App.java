@@ -29,19 +29,19 @@ public class App
         Config conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")
                 .withFallback(ConfigFactory.defaultApplication())
                 .resolve();
-        ActorSystem akws = ActorSystem.create("akws", conf);
-        Materializer mat = ActorMaterializer.create(akws);
+        ActorSystem core = ActorSystem.create("CORE", conf);
+        Materializer mat = ActorMaterializer.create(core);
 
         //#concatOrNotFound
         Function<HttpRequest, CompletionStage<HttpResponse>> retrieverService =
-                RetrieverServiceHandlerFactory.create(new RetrieverServiceImpl(mat), mat, akws);
+                RetrieverServiceHandlerFactory.create(new RetrieverServiceImpl(mat, core), mat, core);
         Function<HttpRequest, CompletionStage<HttpResponse>> echoService =
-                EchoServiceHandlerFactory.create(new EchoServiceImpl(), mat, akws);
+                EchoServiceHandlerFactory.create(new EchoServiceImpl(), mat, core);
         @SuppressWarnings("unchecked")
         Function<HttpRequest, CompletionStage<HttpResponse>> serviceHandlers =
                 ServiceHandler.concatOrNotFound(retrieverService, echoService);
 
-        Http.get(akws).bindAndHandleAsync(
+        Http.get(core).bindAndHandleAsync(
                 serviceHandlers,
                 ConnectHttp.toHost("127.0.0.1", 8080, UseHttp2.always()),
                 mat)
