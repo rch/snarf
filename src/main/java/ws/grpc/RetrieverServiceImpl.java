@@ -16,7 +16,9 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 
-import ws.grpc.api.*;
+import ws.grpc.api.ImageList;
+import ws.grpc.api.LocalList;
+import ws.grpc.api.RetrieverService;
 import ws.tango.HttpRequestActor;
 
 
@@ -30,7 +32,7 @@ public class RetrieverServiceImpl implements RetrieverService {
     }
 
     @Override
-    public CompletionStage<LocalList> fetch(RemoteList in) {
+    public CompletionStage<LocalList> fetch(ImageList in) {
         ActorRef ref = core.actorOf(Props.create(HttpRequestActor.class));
         ref.tell(in, ActorRef.noSender());
         LocalList reply = LocalList.newBuilder().setStatus("OK").build();

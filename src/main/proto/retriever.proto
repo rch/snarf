@@ -7,12 +7,15 @@ option java_package = "ws.grpc.api";
 
 
 service RetrieverService {
-    rpc  Fetch (RemoteList) returns (LocalList) {}
+    rpc  Fetch (ImageList) returns (LocalList) {}
 }
 
-message RemoteList {
-    string status = 1;
-    repeated string items = 2;
+message Image {
+    string url = 1;
+}
+
+message ImageList {
+    repeated Image items = 1;
 }
 
 message LocalList {
