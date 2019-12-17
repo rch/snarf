@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package ws.grpc.api;
+
+option java_multiple_files = true;
+option java_package = "ws.grpc.api";
+
+
+service AgendaService {
+    rpc  Extend (TaskList) returns (TaskStatus) {}
+}
+
+enum TaskCategory {
+    UNKNOWN = 0;
+    PROCESS = 1;
+    REQUEST = 2;
+    RESPONSE = 3;
+    RESOURCE = 4;
+    STORE = 5;
+    FETCH = 6;
+    DELTA = 7;
+}
+
+
+message TaskStatus {
+    int32 rank = 1;
+    string text = 2;
+}
+
+
+message TaskList {
+    TaskStatus status = 1;
+    repeated string entries = 2;
+}
+

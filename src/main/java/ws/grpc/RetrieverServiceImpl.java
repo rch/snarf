@@ -3,40 +3,40 @@ package ws.grpc;
  * Copyright (C) 2018-2019 Lightbend Inc. <https://www.lightbend.com>
  */
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.NotUsed;
 import akka.stream.Materializer;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
 
-import ws.grpc.api.ImageList;
-import ws.grpc.api.LocalList;
-import ws.grpc.api.RetrieverService;
+import ws.grpc.api.*;
 import ws.tango.HttpRequestActor;
 
 
 public class RetrieverServiceImpl implements RetrieverService {
     private final Materializer mat;
     private final ActorSystem core;
+    private final ActorRef objective;
 
-    public RetrieverServiceImpl(Materializer mat, ActorSystem core) {
+    public RetrieverServiceImpl(Materializer mat, ActorSystem core, ActorRef objective) {
         this.mat = mat;
         this.core = core;
+        this.objective = objective;
     }
 
     @Override
-    public CompletionStage<LocalList> fetch(ImageList in) {
+    public CompletionStage<LocalList> fetch(ImageList inbound) {
         ActorRef ref = core.actorOf(Props.create(HttpRequestActor.class));
-        ref.tell(in, ActorRef.noSender());
-        LocalList reply = LocalList.newBuilder().setStatus("OK").build();
-        return CompletableFuture.completedFuture(reply);
+        ref.tell(inbound, ActorRef.noSender());
+        LocalList.Builder reply = LocalList.newBuilder().setStatus("OK");
+        for (ImageUrl img : inbound.getItemsList()) {
+            System.out.println(img.getText());
+            reply.addItems(img.getText());
+            this.objective.tell(img.getText(), ref);
+        }
+        return CompletableFuture.completedFuture(reply.build());
     }
 }
 //#full-service-impl

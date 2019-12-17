@@ -1,6 +1,10 @@
 package ws.tango;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.cluster.Cluster;
+import akka.cluster.ddata.ORMultiMap;
+import akka.cluster.ddata.PNCounterMap;
 import akka.grpc.javadsl.ServiceHandler;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
@@ -26,15 +30,21 @@ import ws.grpc.api.RetrieverServiceHandlerFactory;
 public class App
 {
     public static void main( String[] args ) {
-        Config conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")
+        Config conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2=on," +
+                "akka.actor.provider=cluster")
                 .withFallback(ConfigFactory.defaultApplication())
                 .resolve();
         ActorSystem core = ActorSystem.create("CORE", conf);
+        // running as a single-node pseudo-cluster for now
+        Cluster cluster = Cluster.get(core);
+        cluster.join(cluster.selfAddress());
         Materializer mat = ActorMaterializer.create(core);
+        ORMultiMap<String, String> workspace = ORMultiMap.create();  // TODO(rch): typed cluster singleton?
+        ActorRef objective = core.actorOf(Objective.props(workspace), "objective");
 
         //#concatOrNotFound
         Function<HttpRequest, CompletionStage<HttpResponse>> retrieverService =
-                RetrieverServiceHandlerFactory.create(new RetrieverServiceImpl(mat, core), mat, core);
+                RetrieverServiceHandlerFactory.create(new RetrieverServiceImpl(mat, core, objective), mat, core);
         Function<HttpRequest, CompletionStage<HttpResponse>> echoService =
                 EchoServiceHandlerFactory.create(new EchoServiceImpl(), mat, core);
         @SuppressWarnings("unchecked")

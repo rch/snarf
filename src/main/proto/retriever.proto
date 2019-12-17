@@ -10,12 +10,12 @@ service RetrieverService {
     rpc  Fetch (ImageList) returns (LocalList) {}
 }
 
-message Image {
-    string url = 1;
+message ImageUrl {
+    string text = 1;
 }
 
 message ImageList {
-    repeated Image items = 1;
+    repeated ImageUrl items = 1;
 }
 
 message LocalList {
@@ -26,3 +26,12 @@ message LocalList {
 message Status {
     string text = 1;
 }
+
+message ContainsUrlRequest {
+    string text = 1;
+}
+
+message ContainsUrlResponse {
+    bool value = 1;
+}
+
