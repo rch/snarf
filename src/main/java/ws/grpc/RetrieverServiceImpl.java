@@ -4,7 +4,6 @@ package ws.grpc;
  */
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -27,12 +26,11 @@ public class RetrieverServiceImpl implements RetrieverService {
     }
 
     @Override
-    public CompletionStage<LocalList> fetch(ImageList inbound) {
+    public CompletableFuture<LocalList> fetch(ImageList inbound) {
         ActorRef ref = core.actorOf(Props.create(HttpRequestActor.class));
         ref.tell(inbound, ActorRef.noSender());
         LocalList.Builder reply = LocalList.newBuilder().setStatus("OK");
         for (ImageUrl img : inbound.getItemsList()) {
-            System.out.println(img.getText());
             reply.addItems(img.getText());
             this.objective.tell(img.getText(), ref);
         }
