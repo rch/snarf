@@ -1,7 +1,6 @@
 # Project-specific paths
 reload
-alpha/erpdemo/wsgi/container/pkgs/sencha/static/
-alpha/portal/container/pkgs/sencha/static/ext-4.2.2.1144
+tmp-*
 
 # IDE-specific files
 .project
